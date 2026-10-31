@@ -37,11 +37,10 @@ jobs:
 
       - name: Build APK
         run: |
-          cd mobileльное_приложение
-          flet pack main.py
+          flet pack mobileльное_приложение/main.py --platforms android
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobileльное_приложение/dist/*.apk
+          path: dist/*.apk
