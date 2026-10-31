@@ -1,0 +1,9 @@
+app:
+  name: "IGOS Trading Bot"
+  description: "Advanced crypto trading bot with risk management and multi-user support"
+  org: "com.igos.trading"
+  product: "IGOS"
+  company: "IGOS"
+  copyright: "Copyright (c) 2026 IGOS. All rights reserved."
+flutter:
+  generate: true
