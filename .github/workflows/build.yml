@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,27 +17,14 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.6'
-          channel: 'stable'
-          cache: true
-
-      - name: Install dependencies
+      - name: Install Flet and dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install flet
 
-      - name: Build APK with Flet
+      - name: Build APK
         run: |
-          flet pack main.py -- plataforma android
+          flet pack main.py --platform android
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
