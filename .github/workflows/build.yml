@@ -3,6 +3,7 @@ name: Build Flet APK
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,15 +17,30 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Build APK with Flet
-        uses: flet-dev/build-apk-action@v1
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          project-path: 'mobile_app'
-          package-name: 'com.igos.trading'
-          product-name: 'IGOS'
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Upload APK artifact
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install flet
+
+      - name: Build APK with Flet
+        run: |
+          flet pack main.py -- plataforma android
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/apk/app-release.apk
+          path: dist/*.apk
