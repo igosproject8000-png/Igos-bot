@@ -44,4 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobile_app/dist/*.apk
+          path: |
+            mobile_app/dist/*.apk
+            mobile_app/build/app/outputs/flutter-apk/*.apk
+            **/app-release.apk
