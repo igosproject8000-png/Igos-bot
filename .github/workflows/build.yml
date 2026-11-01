@@ -38,11 +38,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet==0.24.1"
 
-      - name: Fix Gradle and wakelock_plus SDK version
+      - name: Fix Gradle and Kotlin Compatibility
         run: |
-          flutter pub cache add wakelock_plus -v 1.4.0
-          sed -i 's/flutter\.compileSdkVersion/35/g' ~/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/android/build.gradle
-          sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/g' $(dirname $(which flutter))/../packages/flutter_tools/gradle/src/main/groovy/flutter.groovy || true
+          flutter pub cache add wakelock_plus -v 1.4.0 || true
+          CACHE_DIR="$HOME/.pub-cache/hosted/pub.dev"
+          if [ -d "$CACHE_DIR/wakelock_plus-1.4.0" ]; then
+            sed -i 's/kotlinVersion = .*/kotlinVersion = "1.9.0"/g' "$CACHE_DIR/wakelock_plus-1.4.0/android/build.gradle" || true
+          fi
           mkdir -p ~/.gradle
           cat << 'EOF' > ~/.gradle/init.gradle
           allprojects {
@@ -59,6 +61,9 @@ jobs:
               afterEvaluate { project ->
                   if (project.hasProperty("android")) {
                       project.android.compileSdkVersion(35)
+                      project.android.defaultConfig {
+                          targetSdkVersion 35
+                      }
                   }
               }
           }
@@ -74,5 +79,6 @@ jobs:
         with:
           name: igos-android-apk
           path: |
+            mobile_app/build/app/outputs/flutter-apk/*.apk
             mobile_app/build/apk/*.apk
             **/*.apk
