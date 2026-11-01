@@ -38,16 +38,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet==0.24.1"
 
-      - name: Fix Gradle and Kotlin Compatibility
+      - name: Fix Gradle and Kotlin Version
         run: |
-          flutter pub cache add wakelock_plus -v 1.4.0 || true
-          CACHE_DIR="$HOME/.pub-cache/hosted/pub.dev"
-          if [ -d "$CACHE_DIR/wakelock_plus-1.4.0" ]; then
-            sed -i 's/kotlinVersion = .*/kotlinVersion = "1.9.0"/g' "$CACHE_DIR/wakelock_plus-1.4.0/android/build.gradle" || true
-          fi
           mkdir -p ~/.gradle
           cat << 'EOF' > ~/.gradle/init.gradle
           allprojects {
+              buildscript {
+                  ext.kotlin_version = '2.2.0'
+              }
               beforeEvaluate { project ->
                   if (!project.hasProperty("flutter")) {
                       project.ext.flutter = [
