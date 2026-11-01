@@ -38,6 +38,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet==0.24.1"
 
+      - name: Fix Gradle and wakelock_plus SDK version
+        run: |
+          flutter pub cache add wakelock_plus -v 1.4.0
+          sed -i 's/flutter\.compileSdkVersion/35/g' ~/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/android/build.gradle
+          sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/g' $(dirname $(which flutter))/../packages/flutter_tools/gradle/src/main/groovy/flutter.groovy || true
+          mkdir -p ~/.gradle
+          cat << 'EOF' > ~/.gradle/init.gradle
+          allprojects {
+              beforeEvaluate { project ->
+                  if (!project.hasProperty("flutter")) {
+                      project.ext.flutter = [
+                          compileSdkVersion: 35,
+                          minSdkVersion: 21,
+                          targetSdkVersion: 35,
+                          ndkVersion: "25.1.8937393"
+                      ]
+                  }
+              }
+              afterEvaluate { project ->
+                  if (project.hasProperty("android")) {
+                      project.android.compileSdkVersion(35)
+                  }
+              }
+          }
+          EOF
+
       - name: Build Android APK
         run: |
           cd mobile_app
