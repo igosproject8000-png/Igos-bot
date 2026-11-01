@@ -38,7 +38,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet==0.24.1"
 
-      - name: Configure Safe Gradle Settings
+      - name: Configure Gradle and Fix Kotlin Stdlib
         run: |
           mkdir -p ~/.gradle
           cat << 'EOF' > ~/.gradle/init.gradle
@@ -53,11 +53,25 @@ jobs:
                       ]
                   }
               }
+              configurations.all {
+                  resolutionStrategy.eachDependency { details ->
+                      if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-stdlib')) {
+                          details.useVersion '1.9.24'
+                      }
+                  }
+              }
               afterEvaluate { project ->
                   if (project.hasProperty("android")) {
                       project.android.compileSdkVersion = 35
                       if (project.android.hasProperty("defaultConfig")) {
                           project.android.defaultConfig.targetSdkVersion = 35
+                      }
+                  }
+                  project.tasks.configureEach { task ->
+                      if (task.hasProperty("kotlinOptions")) {
+                          try {
+                              task.kotlinOptions.freeCompilerArgs += ["-Xskip-metadata-version-check"]
+                          } catch (Exception ignored) {}
                       }
                   }
               }
