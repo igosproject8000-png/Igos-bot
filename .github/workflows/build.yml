@@ -38,14 +38,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet==0.24.1"
 
-      - name: Fix Gradle and Kotlin Compatibility
+      - name: Configure Safe Gradle Settings
         run: |
           mkdir -p ~/.gradle
           cat << 'EOF' > ~/.gradle/init.gradle
           allprojects {
-              buildscript {
-                  ext.kotlin_version = '1.9.0'
-              }
               beforeEvaluate { project ->
                   if (!project.hasProperty("flutter")) {
                       project.ext.flutter = [
@@ -58,12 +55,9 @@ jobs:
               }
               afterEvaluate { project ->
                   if (project.hasProperty("android")) {
-                      project.android.compileSdkVersion(35)
-                      project.android.defaultConfig {
-                          targetSdkVersion 35
-                      }
-                      project.android.kotlinOptions {
-                          allWarningsAsErrors = false
+                      project.android.compileSdkVersion = 35
+                      if (project.android.hasProperty("defaultConfig")) {
+                          project.android.defaultConfig.targetSdkVersion = 35
                       }
                   }
               }
